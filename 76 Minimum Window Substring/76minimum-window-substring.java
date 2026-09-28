@@ -1,44 +1,46 @@
 class Solution {
     public String minWindow(String s, String t) {
-        if(t.length()>s.length())
-        return "";
-        HashMap<Character, Integer> hs1 = new HashMap<>();
-        HashMap<Character, Integer> hs2 = new HashMap<>();
-        for (char e : t.toCharArray()) {
-            hs1.put(e, hs1.getOrDefault(e, 0) + 1);
-        }
-        int len = Integer.MAX_VALUE;
-        int rstart = -1, rend = -1;
-        int start = 0, end = 0;
-        char arr[] = s.toCharArray();
-        int total = hs1.size();
-        int temp = 0;
-        while (end < s.length()) {
-            if (hs1.containsKey(arr[end])) {
-                hs2.put(arr[end], hs2.getOrDefault(arr[end], 0) + 1);
-                if (hs1.get(arr[end]).intValue() == hs2.get(arr[end]).intValue()) {
-                    temp++;
+        int[] freqt = new int[128];
+        int[] freqs = new int[128];
+        int required = 0;
+        int m = s.length();
+        int n = t.length();
+        if (n > m)
+            return "";
+        for (char c : t.toCharArray())
+            freqt[c]++;
+        char[] arr = s.toCharArray();
+        int l = 0;
+        int r = l;
+        int min = Integer.MAX_VALUE;
+        int minL = -1, minR = -1;
+        while (r < m) {
+            while (r<m&&required != n) {
+                if (freqt[arr[r]] != 0) {
+                    freqs[arr[r]]++;
+                    if (freqs[arr[r]] == freqt[arr[r]])
+                        required += freqt[arr[r]];
                 }
+                r++;
             }
-            while(temp == total) {
-                if (end - start + 1 < len) {
-                    len = end - start + 1;
-                    rend = end;
-                    rstart = start;
+            while (required == n) {
+                while (freqt[arr[l]] == 0)
+                    l++;
+                if (r - l < min) {
+                    min = r - l;
+                    minL = l;
+                    minR = r;
                 }
-                if (hs1.containsKey(arr[start])) {
-                    hs2.put(arr[start], hs2.get(arr[start]) - 1);
-                    if (hs2.get(arr[start]).intValue() < hs1.get(arr[start]).intValue()) {
-                        temp--;
-                    }
-                }
-                start++;
+                freqs[arr[l]]--;
+                if(freqs[arr[l]]<freqt[arr[l]])
+                    required-=freqt[arr[l]];
+                l++;
             }
-            end++;
         }
 
-        if (rstart == -1 || rend == -1)
+        if (min == Integer.MAX_VALUE)
             return "";
-        return s.substring(rstart, rend + 1);
+        return s.substring(minL, minR);
     }
+
 }
